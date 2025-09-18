@@ -1,27 +1,42 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { ColumnTask } from "./column.entity";
+import {
+  BeforeInsert,
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { ColumnTask } from './column.entity';
+import * as bcrypt from 'bcrypt';
 
 @Entity()
 export class User {
-	@PrimaryGeneratedColumn()
-	userId: string 
+  @PrimaryGeneratedColumn()
+  userId: string;
 
-	@Column()
-	firstName: string 
+  @Column()
+  firstName: string;
 
-	@Column()
-	lastName: string 
+  @Column()
+  lastName: string;
 
-	@Column()
-	email: string 
+  @Column()
+  email: string;
 
-	@Column()
-	avatarUrl: string 
+  @Column()
+  password: string;
 
-	@CreateDateColumn()
-	created_at: Date 
+  @Column({ nullable: true })
+  avatarUrl: string;
 
-	@OneToMany(() => ColumnTask, (column) => column.user)
-	columns: ColumnTask
+  @CreateDateColumn()
+  created_at: Date;
 
+  @OneToMany(() => ColumnTask, (column) => column.user)
+  columns: ColumnTask;
+
+  @BeforeInsert()
+  async hashPassword() {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
 }
