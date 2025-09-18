@@ -12,13 +12,22 @@ export class UserService {
   constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
 
   async createUser(dto: CreateUserDto) {
-    return await this.userRepo.save(dto);
+    const user = this.userRepo.create(dto);
+    return await this.userRepo.save(user);
   }
 
   async findOneUser(id: string) {
     return await this.userRepo.findOne({
       where: {
         userId: id,
+      },
+    });
+  }
+
+  async findUserByEmail(email: string) {
+    return await this.userRepo.findOne({
+      where: {
+        email,
       },
     });
   }
