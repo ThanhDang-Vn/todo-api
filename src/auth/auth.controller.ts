@@ -3,6 +3,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Request,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -15,5 +16,14 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login() {}
+  login(@Request() req) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    return this.authService.login(req.user.id);
+  }
+
+  @UseGuards(AuthGuard('refresh-jwt'))
+  @Post('refresh')
+  refreshToken(@Request() req) {
+    return this.authService.refreshToken(req.user.id);
+  }
 }

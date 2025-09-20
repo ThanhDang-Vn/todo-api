@@ -7,11 +7,14 @@ import {
   Patch,
   Delete,
   Query,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/createUser.dto';
 import { updateUserDto } from './dto/updateUser.dto';
 import { Pagination } from './dto/pagination.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('user')
 export class UserController {
@@ -22,9 +25,11 @@ export class UserController {
     return this.userService.findAllUser(pagination);
   }
 
-  @Get(':id')
-  findOneUser(@Param('id') id: string) {
-    return this.userService.findOneUser(id);
+  @UseGuards(AuthGuard('jwt'))
+  @Get('profile')
+  getProfile(@Request() req) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    return this.userService.findOneUser(req.user.id);
   }
 
   @Post()
