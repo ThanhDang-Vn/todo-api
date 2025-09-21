@@ -9,6 +9,7 @@ import {
   Query,
   Request,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/createUser.dto';
@@ -20,16 +21,21 @@ import { AuthGuard } from '@nestjs/passport';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Get()
-  findAllUser(@Query() pagination: Pagination) {
-    return this.userService.findAllUser(pagination);
-  }
-
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
   getProfile(@Request() req) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.userService.findOneUser(req.user.id);
+  }
+
+  @Get(':id')
+  findOneUser(@Param('id', ParseIntPipe) id) {
+    return this.userService.findOneUser(id);
+  }
+
+  @Get()
+  findAllUser(@Query() pagination: Pagination) {
+    return this.userService.findAllUser(pagination);
   }
 
   @Post()
@@ -38,12 +44,15 @@ export class UserController {
   }
 
   @Patch(':id')
-  updateUser(@Param('id') id: string, @Body() dto: updateUserDto) {
+  updateUser(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: updateUserDto,
+  ) {
     return this.userService.updateUser(id, dto);
   }
 
   @Delete(':id')
-  deleteUser(@Param('id') id: string) {
+  deleteUser(@Param('id', ParseIntPipe) id: number) {
     return this.userService.deleteUser(id);
   }
 }

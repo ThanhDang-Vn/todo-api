@@ -12,7 +12,7 @@ import * as bcrypt from 'bcrypt';
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
-  userId: string;
+  userId: number;
 
   @Column()
   firstName: string;
@@ -25,6 +25,9 @@ export class User {
 
   @Column()
   password: string;
+
+  @Column({ nullable: true })
+  hashedRefreshToken: string;
 
   @Column({ nullable: true })
   avatarUrl: string;
