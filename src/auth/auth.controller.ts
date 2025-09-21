@@ -21,9 +21,17 @@ export class AuthController {
     return this.authService.login(req.user.id);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @Post('logout')
+  async logout(@Request() req) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    return await this.authService.signout(req.user.id);
+  }
+
   @UseGuards(AuthGuard('refresh-jwt'))
   @Post('refresh')
   refreshToken(@Request() req) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.authService.refreshToken(req.user.id);
   }
 }

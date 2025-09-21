@@ -4,12 +4,15 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthJwtPayload } from '../types/auth-jwtPayload';
 import { Injectable, Inject } from '@nestjs/common';
 import refreshJwtConfig from '../config/refresh-jwt.config';
+import { Request } from 'express';
+import { AuthService } from '../auth.service';
 
 @Injectable()
 export class RefreshJwtAuth extends PassportStrategy(Strategy, 'refresh-jwt') {
   constructor(
     @Inject(refreshJwtConfig.KEY)
     private refreshJwtConfiguration: ConfigType<typeof refreshJwtConfig>,
+    private authService: AuthService,
   ) {
     if (!refreshJwtConfiguration.secret) {
       throw new Error('JWT secret is not defined');
@@ -17,12 +20,16 @@ export class RefreshJwtAuth extends PassportStrategy(Strategy, 'refresh-jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: refreshJwtConfiguration.secret,
+      passReqToCallback: true,
     });
   }
 
-  validate(payload: AuthJwtPayload) {
-    return {
-      id: payload.sub,
-    };
+  async validate(req: Request, payload: AuthJwtPayload) {
+    const refreshToken = req.get('authorization')?.replace('Bearer', '').trim();
+    if (!refreshToken) {
+      return 'missing refresh token';
+    }
+    const userId = payload.sub;
+    return await this.authService.validateRefreshToken(userId, refreshToken);
   }
 }

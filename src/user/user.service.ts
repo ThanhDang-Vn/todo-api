@@ -16,7 +16,7 @@ export class UserService {
     return await this.userRepo.save(user);
   }
 
-  async findOneUser(id: string) {
+  async findOneUser(id: number) {
     return await this.userRepo.findOne({
       where: {
         userId: id,
@@ -39,11 +39,21 @@ export class UserService {
     });
   }
 
-  async updateUser(id: string, dto: updateUserDto) {
+  async updateHashingRefreshToken(
+    id: number,
+    hashingRefreshToken: string | null,
+  ) {
+    return this.userRepo.update(
+      { userId: id },
+      { hashedRefreshToken: hashingRefreshToken ?? undefined },
+    );
+  }
+
+  async updateUser(id: number, dto: updateUserDto) {
     await this.userRepo.update({ userId: id }, dto);
   }
 
-  async deleteUser(id: string) {
+  async deleteUser(id: number) {
     await this.userRepo.delete({ userId: id });
   }
 }
