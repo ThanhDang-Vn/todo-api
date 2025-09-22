@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -33,5 +34,15 @@ export class AuthController {
   refreshToken(@Request() req) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.authService.refreshToken(req.user.id);
+  }
+
+  @UseGuards(AuthGuard('google'))
+  @Get('google/login')
+  googleLogin() {}
+
+  @UseGuards(AuthGuard('google'))
+  @Get('google/callback')
+  async callBack(@Request() req) {
+    const response = await this.authService.login(req.user.id);
   }
 }

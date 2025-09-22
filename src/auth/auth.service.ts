@@ -6,6 +6,7 @@ import { AuthJwtPayload } from './types/auth-jwtPayload';
 import refreshJwtConfig from './config/refresh-jwt.config';
 import type { ConfigType } from '@nestjs/config';
 import * as argon2 from 'argon2';
+import { CreateUserDto } from 'src/user/dto/createUser.dto';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +23,15 @@ export class AuthService {
     const isPasswordMatch = await compare(password, user.password);
     if (!isPasswordMatch)
       throw new UnauthorizedException('Invalid credentials');
+
+    return { id: user.userId };
+  }
+
+  async validateGoogleUser(googleUser: CreateUserDto) {
+    const user = await this.userService.findUserByEmail(googleUser.email);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
 
     return { id: user.userId };
   }
