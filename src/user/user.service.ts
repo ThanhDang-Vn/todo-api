@@ -55,5 +55,6 @@ export class UserService {
 
   async deleteUser(id: number) {
     await this.userRepo.delete({ userId: id });
+    return 'Delete successfully';
   }
 }

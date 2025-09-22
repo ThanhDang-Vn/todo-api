@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { ColumnTask } from './column.entity';
 import * as bcrypt from 'bcrypt';
+import { Role } from 'src/auth/enums/role.enum';
 
 @Entity()
 export class User {
@@ -25,6 +26,13 @@ export class User {
 
   @Column()
   password: string;
+
+  @Column({
+    default: Role.USER,
+    type: 'enum',
+    enum: Role,
+  })
+  role: Role;
 
   @Column({ nullable: true })
   hashedRefreshToken: string;
