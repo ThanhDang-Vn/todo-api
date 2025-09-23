@@ -37,8 +37,8 @@ export class UserController {
   }
 
   @Get()
-  findAllUser(@Query() pagination: Pagination) {
-    return this.userService.findAllUser(pagination);
+  findUserBasePagination(@Query() pagination: Pagination) {
+    return this.userService.findUserBasePagination(pagination);
   }
 
   @Post()

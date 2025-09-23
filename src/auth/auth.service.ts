@@ -1,6 +1,10 @@
-import { Injectable, UnauthorizedException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  Inject,
+  ConflictException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { compare } from 'bcrypt';
 import { UserService } from 'src/user/user.service';
 import { AuthJwtPayload } from './types/auth-jwtPayload';
 import refreshJwtConfig from './config/refresh-jwt.config';
@@ -20,7 +24,7 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     const user = await this.userService.findUserByEmail(email);
     if (!user) throw new UnauthorizedException('User not found');
-    const isPasswordMatch = await compare(password, user.password);
+    const isPasswordMatch = await argon2.verify(user.password, password);
     if (!isPasswordMatch)
       throw new UnauthorizedException('Invalid credentials');
 
@@ -29,11 +33,12 @@ export class AuthService {
 
   async validateGoogleUser(googleUser: CreateUserDto) {
     const user = await this.userService.findUserByEmail(googleUser.email);
-    if (!user) {
-      throw new UnauthorizedException('User not found');
+
+    if (user) {
+      return user;
     }
 
-    return { id: user.userId };
+    return await this.userService.createUser(googleUser);
   }
 
   async generateToken(userId: number) {
@@ -61,6 +66,15 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  async register(userDto: CreateUserDto) {
+    const isMatchEmail = await this.userService.findUserByEmail(userDto.email);
+    if (isMatchEmail) {
+      throw new ConflictException('This email already exist');
+    }
+
+    return await this.userService.createUser(userDto);
   }
 
   async refreshToken(userId: number) {
