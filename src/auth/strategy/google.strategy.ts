@@ -34,14 +34,16 @@ export class GoogleAuth extends PassportStrategy(Strategy) {
     profile: any,
     done: VerifyCallback,
   ) {
+    console.log({ profile });
     const user = await this.authService.validateGoogleUser({
       email: profile.emails[0].value,
-      firstName: profile.name.giveName,
-      lastName: profile.name.familyName,
+      firstName: profile._json.given_name,
+      lastName: profile._json.family_name,
       avatarUrl: profile.photos[0].value,
       password: '',
     });
 
+    console.log('completed');
     done(null, user);
   }
 }

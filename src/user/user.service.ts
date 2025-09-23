@@ -1,23 +1,30 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/entities/user.entity';
-import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createUser.dto';
 import { updateUserDto } from './dto/updateUser.dto';
 import { Pagination } from './dto/pagination.dto';
 import { DEFAULT_PAGE_SIZE } from 'src/utils/constants';
+import { PrismaService } from 'src/prisma/prisma.service';
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectRepository(User) private userRepo: Repository<User>) {}
+  constructor(private prisma: PrismaService) {}
 
   async createUser(dto: CreateUserDto) {
-    const user = this.userRepo.create(dto);
-    return await this.userRepo.save(user);
+    const { password, ...userDto } = dto;
+    const hashedPassword = await argon2.hash(password);
+    const user = await this.prisma.user.create({
+      data: {
+        ...userDto,
+        password: hashedPassword,
+      },
+    });
+
+    return user;
   }
 
   async findOneUser(id: number) {
-    return await this.userRepo.findOne({
+    return await this.prisma.user.findUnique({
       where: {
         userId: id,
       },
@@ -25,15 +32,19 @@ export class UserService {
   }
 
   async findUserByEmail(email: string) {
-    return await this.userRepo.findOne({
+    return await this.prisma.user.findFirst({
       where: {
         email,
       },
     });
   }
 
-  async findAllUser(pagination: Pagination) {
-    return await this.userRepo.find({
+  async findAllUser() {
+    return await this.prisma.user.findMany();
+  }
+
+  async findUserBasePagination(pagination: Pagination) {
+    return await this.prisma.user.findMany({
       skip: pagination.skip,
       take: pagination.limit ?? DEFAULT_PAGE_SIZE,
     });
@@ -43,18 +54,27 @@ export class UserService {
     id: number,
     hashingRefreshToken: string | null,
   ) {
-    return this.userRepo.update(
-      { userId: id },
-      { hashedRefreshToken: hashingRefreshToken ?? undefined },
-    );
+    return await this.prisma.user.update({
+      where: {
+        userId: id,
+      },
+      data: {
+        hashedRefreshToken: hashingRefreshToken ?? undefined,
+      },
+    });
   }
 
   async updateUser(id: number, dto: updateUserDto) {
-    await this.userRepo.update({ userId: id }, dto);
+    await this.prisma.user.update({
+      where: { userId: id },
+      data: {
+        ...dto,
+      },
+    });
   }
 
   async deleteUser(id: number) {
-    await this.userRepo.delete({ userId: id });
+    await this.prisma.user.delete({ where: { userId: id } });
     return 'Delete successfully';
   }
 }
