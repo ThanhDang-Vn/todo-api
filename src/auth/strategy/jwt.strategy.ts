@@ -16,9 +16,11 @@ export class JwtAuth extends PassportStrategy(Strategy) {
     if (!jwtConfiguration.secret) {
       throw new Error('JWT secret is not defined');
     }
+    // already verify jwt from there by get jwt from bear token and match with secret key 
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: jwtConfiguration.secret,
+      ignoreExpiration: false,
     });
   }
 

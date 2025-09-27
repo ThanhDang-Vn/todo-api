@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
-import { AuthJwtPayload } from './types/auth-jwtPayload';
-import refreshJwtConfig from './config/refresh-jwt.config';
+import { AuthJwtPayload } from '../auth/types/auth-jwtPayload';
+import refreshJwtConfig from '../auth/config/refresh-jwt.config';
 import type { ConfigType } from '@nestjs/config';
 import * as argon2 from 'argon2';
 import { CreateUserDto } from 'src/user/dto/createUser.dto';
@@ -28,7 +28,11 @@ export class AuthService {
     if (!isPasswordMatch)
       throw new UnauthorizedException('Invalid credentials');
 
-    return { id: user.userId };
+    return {
+      id: user.userId,
+      name: `${user.firstName} ${user.lastName}`,
+      email: user.email,
+    };
   }
 
   async validateGoogleUser(googleUser: CreateUserDto) {
@@ -54,15 +58,17 @@ export class AuthService {
     };
   }
 
-  async login(userId: number) {
-    const { accessToken, refreshToken } = await this.generateToken(userId);
+  async login(user: { id: number; name: string; email: string }) {
+    const { accessToken, refreshToken } = await this.generateToken(user.id);
     const hashedRefreshToken = await argon2.hash(refreshToken);
     await this.userService.updateHashingRefreshToken(
-      userId,
+      user.id,
       hashedRefreshToken,
     );
     return {
-      id: userId,
+      id: user.id,
+      name: user.name,
+      email: user.email,
       accessToken,
       refreshToken,
     };

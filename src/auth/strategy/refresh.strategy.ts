@@ -18,7 +18,7 @@ export class RefreshJwtAuth extends PassportStrategy(Strategy, 'refresh-jwt') {
       throw new Error('JWT secret is not defined');
     }
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromBodyField('refresh'),
       secretOrKey: refreshJwtConfiguration.secret,
       passReqToCallback: true,
     });
