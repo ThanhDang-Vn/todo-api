@@ -28,7 +28,7 @@ export class AuthController {
   @Post('login')
   login(@Request() req) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    return this.authService.login(req.user.id);
+    return this.authService.login(req.user);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -57,5 +57,11 @@ export class AuthController {
   async callBack(@Req() req) {
     const response = await this.authService.login(req.user.id);
     return { url: `http://localhost:3000/inbox?token=${response.accessToken}` };
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('protected')
+  getAll(@Request() request) {
+    return { message: `message, ${request.user.id}` };
   }
 }
