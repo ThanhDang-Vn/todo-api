@@ -43,7 +43,6 @@ export class GoogleAuth extends PassportStrategy(Strategy) {
       password: '',
     });
 
-    console.log('completed');
     done(null, user);
   }
 }

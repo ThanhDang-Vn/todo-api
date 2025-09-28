@@ -4,11 +4,10 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Redirect,
-  Req,
   Request,
   UseGuards,
   Body,
+  Res,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -53,10 +52,14 @@ export class AuthController {
 
   @UseGuards(AuthGuard('google'))
   @Get('google/callback')
-  @Redirect()
-  async callBack(@Req() req) {
-    const response = await this.authService.login(req.user.id);
-    return { url: `http://localhost:3000/inbox?token=${response.accessToken}` };
+  async callBack(@Request() req, @Res() res) {
+    const id = req.user.userId;
+    const name = req.user.firstName + req.user.lastName;
+    const email = req.user.email;
+    const response = await this.authService.login({ id, name, email });
+    res.redirect(
+      `http://localhost:3000/api/auth/google/callback?userId=${id}&firstName=${req.user.firstName}&lastName=${req.user.lastName}&email=${email}&accessToken=${response.accessToken}&refreshToken=${response.refreshToken}`,
+    );
   }
 
   @UseGuards(AuthGuard('jwt'))
