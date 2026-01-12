@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaService } from './prisma/prisma.service';
 import dbConfig from './config/db.config';
 import dbConfigProduction from './config/db.config.production';
+import { CardModule } from './card/card.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import dbConfigProduction from './config/db.config.production';
         process.env.NODE_ENV === 'production' ? dbConfigProduction : dbConfig,
     }),
     AuthModule,
+    CardModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
