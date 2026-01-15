@@ -6,7 +6,7 @@ import { CreateCardDto } from './dto/create-card.dto';
 export class CardService {
   constructor(private prisma: PrismaService) {}
 
-  async create(userId: number, dto: CreateCardDto) {
+  async create( dto: CreateCardDto) {
     const column = await this.prisma.column_task.findUnique({
       where: { columnId: dto.columnId },
     });
