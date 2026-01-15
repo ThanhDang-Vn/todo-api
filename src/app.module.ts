@@ -9,6 +9,7 @@ import { PrismaService } from './prisma/prisma.service';
 import dbConfig from './config/db.config';
 import dbConfigProduction from './config/db.config.production';
 import { CardModule } from './card/card.module';
+import { ColumnModule } from './column/column.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { CardModule } from './card/card.module';
     }),
     AuthModule,
     CardModule,
+    ColumnModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

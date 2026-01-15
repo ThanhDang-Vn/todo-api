@@ -10,6 +10,6 @@ export class CardController {
 
   @Post()
   create(@Request() req, @Body() dto: CreateCardDto) {
-    return this.cardService.create(req.user.id, dto);
+    return this.cardService.create(dto);
   }
 }
