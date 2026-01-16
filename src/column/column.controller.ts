@@ -14,22 +14,21 @@ import { createColumnDto } from './dto/create-column.dto';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('columns')
+@UseGuards(AuthGuard('jwt'))
 export class ColumnController {
   constructor(private readonly columnService: ColumnService) {}
 
   @Get()
-  getAllColumns() {
-    return this.columnService.getAllColumn();
+  getAllColumns(@Request() req) {
+    return this.columnService.getAllColumn(req.user.id);
   }
 
   @Post()
-  @UseGuards(AuthGuard('jwt'))
-  create(@Body() dto: createColumnDto) {
-    return this.columnService.create(dto);
+  create(@Body() dto: createColumnDto, @Request() req) {
+    return this.columnService.create(dto, req.user.id);
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard('jwt'))
   delete(@Param('id', ParseIntPipe) id: number) {
     return this.columnService.delete(id);
   }
