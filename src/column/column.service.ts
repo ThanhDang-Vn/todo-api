@@ -6,13 +6,33 @@ import { createColumnDto } from './dto/create-column.dto';
 export class ColumnService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllColumn() {
-    return await this.prisma.column_task.findMany();
+  async getAllColumn(userId: number) {
+    return await this.prisma.column_task.findMany({
+      where: {
+        userUserId: userId,
+      },
+      include: {
+        card: true,
+      },
+    });
   }
 
-  async create(dto: createColumnDto) {
+  async create(dto: createColumnDto, userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        userId: userId,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     return await this.prisma.column_task.create({
-      data: dto,
+      data: {
+        title: dto.title,
+        userUserId: userId,
+      },
     });
   }
 
