@@ -5,6 +5,7 @@ import jwtConfig from '../config/jwt.config';
 import { AuthJwtPayload } from '../types/auth-jwtPayload';
 import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
+import { Request } from 'express';
 
 @Injectable()
 export class JwtAuth extends PassportStrategy(Strategy) {
@@ -16,9 +17,12 @@ export class JwtAuth extends PassportStrategy(Strategy) {
     if (!jwtConfiguration.secret) {
       throw new Error('JWT secret is not defined');
     }
-    // already verify jwt from there by get jwt from bear token and match with secret key 
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request: Request) => {
+          return request?.cookies?.['session-action'];
+        },
+      ]),
       secretOrKey: jwtConfiguration.secret,
       ignoreExpiration: false,
     });
