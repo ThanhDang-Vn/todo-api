@@ -12,6 +12,7 @@ import {
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateUserDto } from 'src/user/dto/createUser.dto';
+import type { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -39,7 +40,7 @@ export class AuthController {
 
   @UseGuards(AuthGuard('refresh-jwt'))
   @Post('refresh')
-  refreshToken(@Request() req) {
+  async refreshToken(@Request() req) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.authService.refreshToken(req.user.id);
   }

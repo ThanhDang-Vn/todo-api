@@ -1,12 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCardDto } from './dto/create-card.dto';
+import { UpdateCardDto } from './dto/update-card.dto';
 
 @Injectable()
 export class CardService {
   constructor(private prisma: PrismaService) {}
 
-  async create( dto: CreateCardDto) {
+  async create(dto: CreateCardDto) {
     const column = await this.prisma.column_task.findUnique({
       where: { columnId: dto.columnId },
     });
@@ -22,6 +23,43 @@ export class CardService {
         priority: dto.priority || 'medium',
         due_to: dto.dateDue || new Date(),
         columnColumnId: dto.columnId,
+      },
+    });
+  }
+
+  async update(cardId: number, dto: UpdateCardDto) {
+    const card = await this.prisma.card.findUnique({
+      where: {
+        cardId,
+      },
+    });
+
+    if (!card) {
+      throw new NotFoundException('Card not found or access denied');
+    }
+
+    return await this.prisma.card.update({
+      where: {
+        cardId,
+      },
+      data: dto,
+    });
+  }
+
+  async delete(cardId: number) {
+    const card = await this.prisma.card.findUnique({
+      where: {
+        cardId,
+      },
+    });
+
+    if (!card) {
+      throw new NotFoundException('Card not found or access denied');
+    }
+
+    return await this.prisma.card.delete({
+      where: {
+        cardId,
       },
     });
   }

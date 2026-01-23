@@ -15,7 +15,7 @@ export class CreateCardDto {
   @IsString()
   description?: string;
 
-  @IsOptional()
+  @IsOptional() 
   @IsString()
   priority?: 'low' | 'medium' | 'high';
 
