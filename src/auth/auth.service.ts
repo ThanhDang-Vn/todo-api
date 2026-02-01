@@ -29,7 +29,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
 
     return {
-      id: user.userId,
+      id: user.id,
       name: `${user.firstName} ${user.lastName}`,
       email: user.email,
     };

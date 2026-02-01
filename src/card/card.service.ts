@@ -8,8 +8,8 @@ export class CardService {
   constructor(private prisma: PrismaService) {}
 
   async create(dto: CreateCardDto) {
-    const column = await this.prisma.column_task.findUnique({
-      where: { columnId: dto.columnId },
+    const column = await this.prisma.column.findUnique({
+      where: { id: dto.columnId },
     });
 
     if (!column) {
@@ -21,8 +21,8 @@ export class CardService {
         title: dto.title,
         description: dto.description || '',
         priority: dto.priority || 'medium',
-        due_to: dto.dateDue || new Date(),
-        columnColumnId: dto.columnId,
+        dueTo: dto.dateDue || new Date(),
+        columnId: dto.columnId,
       },
     });
   }
@@ -30,9 +30,11 @@ export class CardService {
   async update(cardId: number, dto: UpdateCardDto) {
     const card = await this.prisma.card.findUnique({
       where: {
-        cardId,
+        id: cardId,
       },
     });
+
+    console.log(dto);
 
     if (!card) {
       throw new NotFoundException('Card not found or access denied');
@@ -40,16 +42,21 @@ export class CardService {
 
     return await this.prisma.card.update({
       where: {
-        cardId,
+        id: cardId,
       },
-      data: dto,
+      data: {
+        ...dto,
+      },
+      include: {
+        column: true,
+      },
     });
   }
 
   async delete(cardId: number) {
     const card = await this.prisma.card.findUnique({
       where: {
-        cardId,
+        id: cardId,
       },
     });
 
@@ -59,7 +66,7 @@ export class CardService {
 
     return await this.prisma.card.delete({
       where: {
-        cardId,
+        id: cardId,
       },
     });
   }
