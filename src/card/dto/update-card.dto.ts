@@ -10,6 +10,9 @@ export class UpdateCardDto {
   description?: string;
 
   @IsOptional()
+  order?: number;
+
+  @IsOptional()
   @IsString()
   priority?: 'low' | 'medium' | 'high';
 

@@ -15,7 +15,10 @@ export class CreateCardDto {
   @IsString()
   description?: string;
 
-  @IsOptional() 
+  @IsOptional()
+  order?: number;
+
+  @IsOptional()
   @IsString()
   priority?: 'low' | 'medium' | 'high';
 

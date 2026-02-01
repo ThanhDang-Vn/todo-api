@@ -16,6 +16,21 @@ export class CardService {
       throw new NotFoundException('Column not found or access denied');
     }
 
+    let order: number;
+
+    if (dto.order !== undefined) {
+      order = dto.order;
+    } else {
+      const lastCard = await this.prisma.card.findFirst({
+        where: {
+          columnId: dto.columnId,
+        },
+        orderBy: { order: 'desc' },
+      });
+
+      order = lastCard ? lastCard.order + 10000 : 10000;
+    }
+
     return await this.prisma.card.create({
       data: {
         title: dto.title,
@@ -23,6 +38,7 @@ export class CardService {
         priority: dto.priority || 'medium',
         dueTo: dto.dateDue || new Date(),
         columnId: dto.columnId,
+        order: order,
       },
     });
   }
@@ -34,10 +50,25 @@ export class CardService {
       },
     });
 
-    console.log(dto);
-
     if (!card) {
       throw new NotFoundException('Card not found or access denied');
+    }
+
+    let order: number = card.order;
+
+    if (dto.columnId) {
+      if (dto.order !== undefined) {
+        order = dto.order;
+      } else {
+        const lastCard = await this.prisma.card.findFirst({
+          where: {
+            columnId: dto.columnId,
+          },
+          orderBy: { order: 'desc' },
+        });
+
+        order = lastCard ? lastCard.order + 10000 : 10000;
+      }
     }
 
     return await this.prisma.card.update({
@@ -46,6 +77,7 @@ export class CardService {
       },
       data: {
         ...dto,
+        order: dto.columnId ? order : card.order,
       },
       include: {
         column: true,

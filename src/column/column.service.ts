@@ -11,8 +11,13 @@ export class ColumnService {
       where: {
         userId: userId,
       },
+      orderBy: {
+        order: 'asc',
+      },
       include: {
-        cards: true,
+        cards: {
+          orderBy: { order: 'asc' },
+        },
       },
     });
   }
@@ -28,10 +33,24 @@ export class ColumnService {
       throw new NotFoundException('User not found');
     }
 
+    let order: number;
+
+    if (dto.order !== undefined) {
+      order = dto.order;
+    } else {
+      const lastColumn = await this.prisma.column.findFirst({
+        where: { userId: userId },
+        orderBy: { order: 'desc' },
+      });
+
+      order = lastColumn ? lastColumn.order + 10000 : 10000;
+    }
+
     return await this.prisma.column.create({
       data: {
         title: dto.title,
         userId: userId,
+        order: order,
       },
     });
   }
