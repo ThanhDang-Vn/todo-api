@@ -7,12 +7,12 @@ export class ColumnService {
   constructor(private prisma: PrismaService) {}
 
   async getAllColumn(userId: number) {
-    return await this.prisma.column_task.findMany({
+    return await this.prisma.column.findMany({
       where: {
-        userUserId: userId,
+        userId: userId,
       },
       include: {
-        card: true,
+        cards: true,
       },
     });
   }
@@ -20,7 +20,7 @@ export class ColumnService {
   async create(dto: createColumnDto, userId: number) {
     const user = await this.prisma.user.findUnique({
       where: {
-        userId: userId,
+        id: userId,
       },
     });
 
@@ -28,28 +28,37 @@ export class ColumnService {
       throw new NotFoundException('User not found');
     }
 
-    return await this.prisma.column_task.create({
+    return await this.prisma.column.create({
       data: {
         title: dto.title,
-        userUserId: userId,
+        userId: userId,
       },
     });
   }
 
   async delete(id: number) {
-    const column = await this.prisma.column_task.findUnique({
+    const column = await this.prisma.column.findUnique({
       where: {
-        columnId: id,
+        id: id,
       },
     });
 
     if (!column) {
       throw new NotFoundException('Column not found');
     }
-    return await this.prisma.column_task.delete({
-      where: {
-        columnId: id,
-      },
+
+    return await this.prisma.$transaction(async (tx) => {
+      await tx.card.deleteMany({
+        where: {
+          columnId: id,
+        },
+      });
+
+      return await tx.column.delete({
+        where: {
+          id: id,
+        },
+      });
     });
   }
 }

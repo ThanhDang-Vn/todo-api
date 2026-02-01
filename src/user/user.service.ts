@@ -26,7 +26,7 @@ export class UserService {
   async findOneUser(id: number) {
     return await this.prisma.user.findUnique({
       where: {
-        userId: id,
+        id: id,
       },
     });
   }
@@ -56,7 +56,7 @@ export class UserService {
   ) {
     return await this.prisma.user.update({
       where: {
-        userId: id,
+        id: id,
       },
       data: {
         hashedRefreshToken: hashingRefreshToken ?? undefined,
@@ -66,7 +66,7 @@ export class UserService {
 
   async updateUser(id: number, dto: updateUserDto) {
     await this.prisma.user.update({
-      where: { userId: id },
+      where: { id: id },
       data: {
         ...dto,
       },
@@ -74,7 +74,7 @@ export class UserService {
   }
 
   async deleteUser(id: number) {
-    await this.prisma.user.delete({ where: { userId: id } });
+    await this.prisma.user.delete({ where: { id: id } });
     return 'Delete successfully';
   }
 }

@@ -7,40 +7,50 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model card {
-  cardId         Int          @id(map: "PK_da6bb682664de7601d3f1a7cc5d") @default(autoincrement())
+model Card {
+  id             Int          @id(map: "PK_da6bb682664de7601d3f1a7cc5d") @default(autoincrement())
   title          String       @db.VarChar
   description    String       @db.VarChar
   priority       String       @db.VarChar
-  due_to         DateTime     @db.Timestamp(6)
-  created_at     DateTime     @default(now()) @db.Timestamp(6)
-  columnColumnId Int?
-  column_task    column_task? @relation(fields: [columnColumnId], references: [columnId], onDelete: NoAction, onUpdate: NoAction, map: "FK_5bbe21a70f96abfdf404f242409")
+  order          Int          @default(0)
+  dueTo          DateTime     @db.Timestamp(6) @map("due_to")
+  createdAt      DateTime     @default(now()) @db.Timestamp(6) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  columnId       Int?
+  column         Column?      @relation(fields: [columnId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_5bbe21a70f96abfdf404f242409")
+
+  @@map("cards")
 }
 
-model column_task {
-  columnId   Int      @id(map: "PK_21313aea8746272ef0eb2294beb") @default(autoincrement())
+model Column {
+  id         Int      @id(map: "PK_21313aea8746272ef0eb2294beb") @default(autoincrement())
   title      String   @db.VarChar
-  created_at DateTime @default(now()) @db.Timestamp(6)
-  userUserId Int?
-  card       card[]
-  user       user?    @relation(fields: [userUserId], references: [userId], onDelete: NoAction, onUpdate: NoAction, map: "FK_2bf3063d29ab36d6786542b6cf2")
+  order      Int      @default(0)
+  createdAt  DateTime @default(now()) @db.Timestamp(6) @map("created_at")
+  updatedAt  DateTime     @updatedAt @map("updated_at")
+  userId     Int?
+  cards      Card[]
+  user       User?    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_2bf3063d29ab36d6786542b6cf2")
+
+  @@map("columns")
 }
 
-model user {
-  userId             Int            @id(map: "PK_d72ea127f30e21753c9e229891e") @default(autoincrement())
-  firstName          String         @db.VarChar
-  lastName           String         @db.VarChar
+model User {
+  id                 Int            @id(map: "PK_d72ea127f30e21753c9e229891e") @default(autoincrement())
+  firstName          String         @db.VarChar @map("first_name")
+  lastName           String         @db.VarChar @map("last_name")
   email              String         @unique @db.VarChar
   password           String         @db.VarChar
-  hashedRefreshToken String?        @db.VarChar
-  avatarUrl          String?        @db.VarChar
-  created_at         DateTime       @default(now()) @db.Timestamp(6)
-  role               user_role_enum @default(USER)
-  column_task        column_task[]
+  hashedRefreshToken String?        @db.VarChar @map("hashed_refresh_token")
+  avatarUrl          String?        @db.VarChar @map("avatar_url")
+  createdAt          DateTime       @default(now()) @db.Timestamp(6) @map("created_at")
+  role               Role @default(USER)
+  columns            Column[]
+
+  @@map("users")
 }
 
-enum user_role_enum {
+enum Role {
   ADMIN
   USER
   EDITOR
