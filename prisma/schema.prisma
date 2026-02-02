@@ -17,6 +17,7 @@ model Card {
   createdAt      DateTime     @default(now()) @db.Timestamp(6) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
   completeAt     DateTime?     @db.Timestamp(6) @map("complete_at")
+  reminders      Reminder[]
   columnId       Int?
   column         Column?      @relation(fields: [columnId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_5bbe21a70f96abfdf404f242409")
 
@@ -49,6 +50,17 @@ model User {
   columns            Column[]
 
   @@map("users")
+}
+
+model Reminder {
+  id        Int      @id(map: "PK_9c6f5f4e8e1f4e5b6c3e2f7a8b9") @default(autoincrement())
+  cardId    Int      @unique @map("card_id")
+  remindAt  DateTime @db.Timestamp(6) @map("remind_at")
+  isSent    Boolean  @default(false) @map("is_sent")
+  createdAt DateTime @default(now()) @db.Timestamp(6) @map("created_at")
+  card      Card     @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@map("reminders")
 }
 
 enum Role {
