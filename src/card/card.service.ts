@@ -39,6 +39,36 @@ export class CardService {
         dueTo: dto.dateDue || new Date(),
         columnId: dto.columnId,
         order: order,
+        reminders: {
+          create:
+            dto.reminders?.map((reminder) => ({
+              remindAt: reminder.remindAt,
+            })) || [],
+        },
+      },
+      include: {
+        reminders: true,
+      },
+    });
+  }
+
+  async complete(cardId: number) {
+    const card = await this.prisma.card.findUnique({
+      where: {
+        id: cardId,
+      },
+    });
+
+    if (!card) {
+      throw new Error('Card is not exist');
+    }
+
+    return await this.prisma.card.update({
+      where: {
+        id: cardId,
+      },
+      data: {
+        completeAt: new Date(),
       },
     });
   }
@@ -77,6 +107,7 @@ export class CardService {
       },
       data: {
         ...dto,
+        updatedAt: new Date(),
         order: dto.columnId ? order : card.order,
       },
       include: {
