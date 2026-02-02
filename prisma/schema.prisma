@@ -16,6 +16,7 @@ model Card {
   dueTo          DateTime     @db.Timestamp(6) @map("due_to")
   createdAt      DateTime     @default(now()) @db.Timestamp(6) @map("created_at")
   updatedAt      DateTime     @updatedAt @map("updated_at")
+  completeAt     DateTime?     @db.Timestamp(6) @map("complete_at")
   columnId       Int?
   column         Column?      @relation(fields: [columnId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_5bbe21a70f96abfdf404f242409")
 

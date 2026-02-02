@@ -24,6 +24,12 @@ export class CardController {
     return this.cardService.create(dto);
   }
 
+  @Put(':id/complete')
+  @UseGuards(AuthGuard('jwt'))
+  completeCard(@Param('id', ParseIntPipe) id: number) {
+    return this.cardService.complete(id);
+  }
+
   @Put(':id')
   @UseGuards(AuthGuard('jwt'))
   update(

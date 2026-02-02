@@ -43,6 +43,27 @@ export class CardService {
     });
   }
 
+  async complete(cardId: number) {
+    const card = await this.prisma.card.findUnique({
+      where: {
+        id: cardId,
+      },
+    });
+
+    if (!card) {
+      throw new Error('Card is not exist');
+    }
+
+    return await this.prisma.card.update({
+      where: {
+        id: cardId,
+      },
+      data: {
+        completeAt: new Date(),
+      },
+    });
+  }
+
   async update(cardId: number, dto: UpdateCardDto) {
     const card = await this.prisma.card.findUnique({
       where: {
@@ -77,6 +98,7 @@ export class CardService {
       },
       data: {
         ...dto,
+        updatedAt: new Date(),
         order: dto.columnId ? order : card.order,
       },
       include: {
