@@ -16,6 +16,9 @@ export class ColumnService {
       },
       include: {
         cards: {
+          where: {
+            completeAt: null,
+          },
           orderBy: { order: 'asc' },
         },
       },
