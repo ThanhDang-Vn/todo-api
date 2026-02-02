@@ -55,6 +55,57 @@ export class ColumnService {
     });
   }
 
+  async duplicate(columnId: number) {
+    const column = await this.prisma.column.findUnique({
+      where: {
+        id: columnId,
+      },
+      include: {
+        cards: true,
+      },
+    });
+
+    if (!column) {
+      throw new Error('This column is not existed');
+    }
+
+    const nearColumn = await this.prisma.column.findFirst({
+      where: {
+        order: {
+          gt: column.order,
+        },
+      },
+      orderBy: {
+        order: 'asc',
+      },
+    });
+
+    return await this.prisma.$transaction(async (tx) => {
+      return await tx.column.create({
+        data: {
+          title: column.title,
+          order: nearColumn
+            ? (column.order + (nearColumn?.order || 0)) / 2
+            : column.order + 10000,
+          userId: column.userId,
+          cards: {
+            create: column.cards.map((card) => ({
+              title: card.title,
+              priority: card.priority,
+              order: card.order,
+              description: card.description,
+              dueTo: card.dueTo,
+            })),
+          },
+        },
+
+        include: {
+          cards: true,
+        },
+      });
+    });
+  }
+
   async delete(id: number) {
     const column = await this.prisma.column.findUnique({
       where: {

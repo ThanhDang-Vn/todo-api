@@ -28,6 +28,11 @@ export class ColumnController {
     return this.columnService.create(dto, req.user.id);
   }
 
+  @Post(':id/duplicate')
+  duplicate(@Param('id', ParseIntPipe) id: number) {
+    return this.columnService.duplicate(id);
+  }
+
   @Delete(':id')
   delete(@Param('id', ParseIntPipe) id: number) {
     return this.columnService.delete(id);
