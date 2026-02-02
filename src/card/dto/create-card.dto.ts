@@ -1,3 +1,4 @@
+import { Reminder } from '@prisma/client';
 import {
   IsDate,
   IsInt,
@@ -29,4 +30,7 @@ export class CreateCardDto {
   @IsNotEmpty()
   @IsInt()
   columnId: number;
+
+  @IsOptional()
+  reminders?: Reminder[];
 }

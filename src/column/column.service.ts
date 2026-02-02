@@ -20,6 +20,9 @@ export class ColumnService {
             completeAt: null,
           },
           orderBy: { order: 'asc' },
+          include: {
+            reminders: true,
+          },
         },
       },
     });

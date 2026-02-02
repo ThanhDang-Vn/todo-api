@@ -54,7 +54,7 @@ model User {
 
 model Reminder {
   id        Int      @id(map: "PK_9c6f5f4e8e1f4e5b6c3e2f7a8b9") @default(autoincrement())
-  cardId    Int      @unique @map("card_id")
+  cardId    Int      @map("card_id")
   remindAt  DateTime @db.Timestamp(6) @map("remind_at")
   isSent    Boolean  @default(false) @map("is_sent")
   createdAt DateTime @default(now()) @db.Timestamp(6) @map("created_at")

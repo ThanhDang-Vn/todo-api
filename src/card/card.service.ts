@@ -39,6 +39,15 @@ export class CardService {
         dueTo: dto.dateDue || new Date(),
         columnId: dto.columnId,
         order: order,
+        reminders: {
+          create:
+            dto.reminders?.map((reminder) => ({
+              remindAt: reminder.remindAt,
+            })) || [],
+        },
+      },
+      include: {
+        reminders: true,
       },
     });
   }
