@@ -73,6 +73,54 @@ export class CardService {
     });
   }
 
+  async getCompleteCards() {
+    const cards = await this.prisma.card.findMany({
+      where: {
+        completeAt: {
+          not: null,
+        },
+      },
+      include: {
+        column: true,
+      },
+      orderBy: {
+        completeAt: 'asc',
+      },
+    });
+
+    const getMonday = (d: Date): string => {
+      const date = new Date(d);
+      const day = date.getDay();
+      const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+
+      return new Date(date.setDate(diff)).toISOString().split('T')[0];
+    };
+
+    const groupedDict = cards.reduce(
+      (acc, card) => {
+        if (!card || !card?.completeAt) return acc;
+
+        const weekKey = getMonday(card.completeAt);
+
+        if (!acc[weekKey]) {
+          acc[weekKey] = [];
+        }
+
+        acc[weekKey].push(card);
+
+        return acc;
+      },
+      {} as Record<string, typeof cards>,
+    );
+
+    const grouped = Object.entries(groupedDict).map(([time, cards]) => ({
+      time,
+      cards,
+    }));
+
+    return grouped;
+  }
+
   async update(cardId: number, dto: UpdateCardDto) {
     const card = await this.prisma.card.findUnique({
       where: {
