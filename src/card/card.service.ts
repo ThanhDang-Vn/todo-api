@@ -121,6 +121,45 @@ export class CardService {
     return grouped;
   }
 
+  async updateReminder(remind: string, cardId: number) {
+    const card = await this.prisma.card.findUnique({
+      where: {
+        id: cardId,
+      },
+      include: {
+        reminders: true,
+      },
+    });
+
+    if (!card) {
+      throw new Error('Card does not exist');
+    }
+
+    return await this.prisma.card.update({
+      where: {
+        id: cardId,
+      },
+      data: {
+        reminders: {
+          create: {
+            remindAt: remind,
+          },
+        },
+      },
+      include: {
+        reminders: true,
+      },
+    });
+  }
+
+  async deleteReminder(reminderId: number) {
+    return await this.prisma.reminder.delete({
+      where: {
+        id: reminderId,
+      },
+    });
+  }
+
   async update(cardId: number, dto: UpdateCardDto) {
     const card = await this.prisma.card.findUnique({
       where: {
