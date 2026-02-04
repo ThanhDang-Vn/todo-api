@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   ParseIntPipe,
   Post,
@@ -17,6 +18,12 @@ import { UpdateCardDto } from './dto/update-card.dto';
 @Controller('cards')
 export class CardController {
   constructor(private readonly cardService: CardService) {}
+
+  @Get('complete')
+  @UseGuards(AuthGuard('jwt'))
+  getAllCompletedCard() {
+    return this.cardService.getCompleteCards();
+  }
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
