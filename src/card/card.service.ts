@@ -84,7 +84,7 @@ export class CardService {
         column: true,
       },
       orderBy: {
-        completeAt: 'asc',
+        completeAt: 'desc',
       },
     });
 
