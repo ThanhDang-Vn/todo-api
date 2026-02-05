@@ -10,6 +10,8 @@ import dbConfigProduction from './config/db.config.production';
 import { CardModule } from './card/card.module';
 import { ColumnModule } from './column/column.module';
 
+import { ReminderModule } from './reminder/reminder.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -20,6 +22,7 @@ import { ColumnModule } from './column/column.module';
     AuthModule,
     CardModule,
     ColumnModule,
+    ReminderModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
