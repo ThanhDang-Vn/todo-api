@@ -29,7 +29,7 @@ export class CreateCardDto {
 
   @IsNotEmpty()
   @IsInt()
-  columnId: number;
+  columnId: string;
 
   @IsOptional()
   reminders?: Reminder[];

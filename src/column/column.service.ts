@@ -6,7 +6,7 @@ import { createColumnDto } from './dto/create-column.dto';
 export class ColumnService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllColumn(userId: number) {
+  async getAllColumn(userId: string) {
     return await this.prisma.column.findMany({
       where: {
         userId: userId,
@@ -21,14 +21,18 @@ export class ColumnService {
           },
           orderBy: { order: 'asc' },
           include: {
-            reminders: true,
+            reminders: {
+              orderBy: {
+                remindAt: 'asc',
+              },
+            },
           },
         },
       },
     });
   }
 
-  async create(dto: createColumnDto, userId: number) {
+  async create(dto: createColumnDto, userId: string) {
     const user = await this.prisma.user.findUnique({
       where: {
         id: userId,
@@ -61,7 +65,7 @@ export class ColumnService {
     });
   }
 
-  async duplicate(columnId: number) {
+  async duplicate(columnId: string) {
     const column = await this.prisma.column.findUnique({
       where: {
         id: columnId,
@@ -112,7 +116,7 @@ export class ColumnService {
     });
   }
 
-  async delete(id: number) {
+  async delete(id: string) {
     const column = await this.prisma.column.findUnique({
       where: {
         id: id,

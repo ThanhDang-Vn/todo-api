@@ -6,5 +6,5 @@ export class CreateReminderDto {
   remindAt: string;
 
   @IsNotEmpty()
-  cardId: number;
+  cardId: string;
 }

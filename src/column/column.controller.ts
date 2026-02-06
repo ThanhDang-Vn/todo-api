@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Post,
   Request,
   UseGuards,
@@ -29,12 +28,12 @@ export class ColumnController {
   }
 
   @Post(':id/duplicate')
-  duplicate(@Param('id', ParseIntPipe) id: number) {
+  duplicate(@Param('id') id: string) {
     return this.columnService.duplicate(id);
   }
 
   @Delete(':id')
-  delete(@Param('id', ParseIntPipe) id: number) {
+  delete(@Param('id') id: string) {
     return this.columnService.delete(id);
   }
 }

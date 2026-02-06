@@ -47,10 +47,7 @@ export class UserController {
   }
 
   @Patch(':id')
-  updateUser(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: updateUserDto,
-  ) {
+  updateUser(@Param('id') id: string, @Body() dto: updateUserDto) {
     return this.userService.updateUser(id, dto);
   }
 
@@ -58,7 +55,7 @@ export class UserController {
   @UseGuards(RolesGuard)
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  deleteUser(@Param('id', ParseIntPipe) id: number) {
+  deleteUser(@Param('id') id: string) {
     return this.userService.deleteUser(id);
   }
 }
