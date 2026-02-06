@@ -23,7 +23,7 @@ export class UserService {
     return user;
   }
 
-  async findOneUser(id: number) {
+  async findOneUser(id: string) {
     return await this.prisma.user.findUnique({
       where: {
         id: id,
@@ -51,7 +51,7 @@ export class UserService {
   }
 
   async updateHashingRefreshToken(
-    id: number,
+    id: string,
     hashingRefreshToken: string | null,
   ) {
     return await this.prisma.user.update({
@@ -64,7 +64,7 @@ export class UserService {
     });
   }
 
-  async updateUser(id: number, dto: updateUserDto) {
+  async updateUser(id: string, dto: updateUserDto) {
     await this.prisma.user.update({
       where: { id: id },
       data: {
@@ -73,7 +73,7 @@ export class UserService {
     });
   }
 
-  async deleteUser(id: number) {
+  async deleteUser(id: string) {
     await this.prisma.user.delete({ where: { id: id } });
     return 'Delete successfully';
   }

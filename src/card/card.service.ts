@@ -52,7 +52,7 @@ export class CardService {
     });
   }
 
-  async complete(cardId: number) {
+  async complete(cardId: string) {
     const card = await this.prisma.card.findUnique({
       where: {
         id: cardId,
@@ -121,7 +121,7 @@ export class CardService {
     return grouped;
   }
 
-  async updateReminder(remind: string, cardId: number) {
+  async updateReminder(remind: string, cardId: string) {
     const card = await this.prisma.card.findUnique({
       where: {
         id: cardId,
@@ -152,7 +152,7 @@ export class CardService {
     });
   }
 
-  async deleteReminder(reminderId: number) {
+  async deleteReminder(reminderId: string) {
     return await this.prisma.reminder.delete({
       where: {
         id: reminderId,
@@ -160,7 +160,7 @@ export class CardService {
     });
   }
 
-  async update(cardId: number, dto: UpdateCardDto) {
+  async update(cardId: string, dto: UpdateCardDto) {
     const card = await this.prisma.card.findUnique({
       where: {
         id: cardId,
@@ -203,7 +203,7 @@ export class CardService {
     });
   }
 
-  async delete(cardId: number) {
+  async delete(cardId: string) {
     const card = await this.prisma.card.findUnique({
       where: {
         id: cardId,

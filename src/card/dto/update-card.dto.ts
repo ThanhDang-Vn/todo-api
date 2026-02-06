@@ -18,5 +18,5 @@ export class UpdateCardDto {
 
   @IsOptional()
   @IsInt()
-  columnId?: number;
+  columnId?: string;
 }

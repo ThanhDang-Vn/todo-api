@@ -34,7 +34,7 @@ export class CardController {
 
   @Put(':id/complete')
   @UseGuards(AuthGuard('jwt'))
-  completeCard(@Param('id', ParseIntPipe) id: number) {
+  completeCard(@Param('id') id: string) {
     return this.cardService.complete(id);
   }
 
@@ -50,23 +50,20 @@ export class CardController {
 
   @Put(':id/reminder')
   @UseGuards(AuthGuard('jwt'))
-  updateReminder(
-    @Body() dto: UpdateReminderDto,
-    @Param('id', ParseIntPipe) id: number,
-  ) {
+  updateReminder(@Body() dto: UpdateReminderDto, @Param('id') id: string) {
     const remindAt = dto.remindAt;
     return this.cardService.updateReminder(remindAt, id);
   }
 
   @Delete('reminder/:id')
   @UseGuards(AuthGuard('jwt'))
-  deleteReminder(@Param('id', ParseIntPipe) id: number) {
+  deleteReminder(@Param('id') id: string) {
     return this.cardService.deleteReminder(id);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'))
-  delete(@Request() req, @Param('id', ParseIntPipe) id) {
+  delete(@Request() req, @Param('id') id: string) {
     return this.cardService.delete(id);
   }
 }

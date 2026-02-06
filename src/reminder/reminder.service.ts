@@ -9,7 +9,7 @@ export class ReminderService {
   async create(dto: CreateReminderDto) {
     return await this.prisma.reminder.create({
       data: {
-        remindAt: dto.remindAt,
+        remindAt: new Date(dto.remindAt),
         cardId: dto.cardId,
       },
     });
