@@ -11,7 +11,6 @@ import refreshJwtConfig from './config/refresh-jwt.config';
 import { RefreshJwtAuth } from './strategy/refresh.strategy';
 import googleOauthConfig from './config/google-oauth.config';
 import { GoogleAuth } from './strategy/google.strategy';
-import { PrismaService } from 'src/prisma/prisma.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { MailModule } from 'src/mail/mail.module';
 
@@ -32,8 +31,6 @@ import { MailModule } from 'src/mail/mail.module';
     JwtAuth,
     RefreshJwtAuth,
     GoogleAuth,
-    PrismaService,
-
   ],
 })
 export class AuthModule {}
