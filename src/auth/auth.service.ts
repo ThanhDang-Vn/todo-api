@@ -10,7 +10,11 @@ import { AuthJwtPayload } from '../auth/types/auth-jwtPayload';
 import refreshJwtConfig from '../auth/config/refresh-jwt.config';
 import type { ConfigType } from '@nestjs/config';
 import * as argon2 from 'argon2';
+import * as crypto from 'crypto';
 import { CreateUserDto } from 'src/user/dto/createUser.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { MailService } from 'src/mail/mail.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +23,8 @@ export class AuthService {
     private refresJwtCofiguration: ConfigType<typeof refreshJwtConfig>,
     private userService: UserService,
     private jwtService: JwtService,
+    private mailService: MailService,
+    private prisma: PrismaService,
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -109,6 +115,43 @@ export class AuthService {
     }
 
     return { id: userId };
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const email = dto.email;
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!user) {
+      return { message: 'If this email exists, an OTP has been sent.' };
+    }
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+
+    const expireAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    await this.prisma.passwordResetToken.upsert({
+      where: {
+        email,
+      },
+      update: {
+        token: otp,
+        expiresAt: expireAt,
+      },
+      create: {
+        email,
+        token: otp,
+        expiresAt: expireAt,
+      },
+    });
+
+    this.mailService.sendOtpEmail(email, otp);
+
+    return { message: 'If this email exists, an OTP has been sent.' };
   }
 
   async signout(userId: string) {

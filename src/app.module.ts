@@ -12,6 +12,7 @@ import { ColumnModule } from './column/column.module';
 
 import { ReminderModule } from './reminder/reminder.module';
 
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -23,6 +24,7 @@ import { ReminderModule } from './reminder/reminder.module';
     CardModule,
     ColumnModule,
     ReminderModule,
+  
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

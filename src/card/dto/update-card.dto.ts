@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateCardDto {
   @IsString()
@@ -17,6 +17,6 @@ export class UpdateCardDto {
   priority?: 'low' | 'medium' | 'high';
 
   @IsOptional()
-  @IsInt()
+  @IsString()
   columnId?: string;
 }

@@ -68,6 +68,16 @@ model Reminder {
   @@map("reminders")
 }
 
+model PasswordResetToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique @db.VarChar 
+  token     String   @db.VarChar
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("password_reset_tokens")
+}
+
 enum Role {
   ADMIN
   USER
