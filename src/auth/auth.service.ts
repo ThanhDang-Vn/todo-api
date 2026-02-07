@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   Inject,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/user/user.service';
@@ -15,6 +16,8 @@ import { CreateUserDto } from 'src/user/dto/createUser.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { MailService } from 'src/mail/mail.service';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { VerifyOtpDto } from './dto/verify-otp.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -127,7 +130,7 @@ export class AuthService {
     });
 
     if (!user) {
-      return { message: 'If this email exists, an OTP has been sent.' };
+      return { message: 'User does not exist' };
     }
 
     const otp = crypto.randomInt(100000, 999999).toString();
@@ -152,6 +155,70 @@ export class AuthService {
     this.mailService.sendOtpEmail(email, otp);
 
     return { message: 'If this email exists, an OTP has been sent.' };
+  }
+
+  async verifyOtp(dto: VerifyOtpDto) {
+    const record = await this.prisma.passwordResetToken.findUnique({
+      where: {
+        email: dto.email,
+      },
+    });
+
+    if (!record || record.token !== dto.otp) {
+      throw new BadRequestException('Invalid OTP');
+    }
+
+    if (new Date() > record.expiresAt) {
+      throw new BadRequestException('OTP has been expired');
+    }
+
+    const tempToken = this.jwtService.sign(
+      { email: dto.email, purpose: 'reset-password' },
+      { secret: process.env.JWT_SECRET, expiresIn: '5m' },
+    );
+
+    await this.prisma.passwordResetToken.delete({
+      where: {
+        email: dto.email,
+      },
+    });
+
+    return {
+      success: true,
+      token: tempToken,
+    };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    try {
+      const payload = this.jwtService.verify(dto.token, {
+        secret: process.env.JWT_SECRET,
+      });
+
+      if (payload.purpose !== 'reset-password') {
+        throw new BadRequestException('Invalid token ');
+      }
+
+      const email = payload.email;
+
+      const hashedPassword = await argon2.hash(dto.password);
+
+      await this.prisma.user.update({
+        where: {
+          email: email,
+        },
+        data: {
+          password: hashedPassword,
+        },
+      });
+
+      return { success: true, message: 'Password updated successfully' };
+    } catch (err) {
+      console.error(err);
+      throw new BadRequestException(
+        'Token invalid or expired. Please start over.',
+      );
+    }
   }
 
   async signout(userId: string) {
