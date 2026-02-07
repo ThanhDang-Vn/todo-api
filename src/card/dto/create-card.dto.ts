@@ -28,7 +28,7 @@ export class CreateCardDto {
   dateDue?: Date;
 
   @IsNotEmpty()
-  @IsInt()
+  @IsString()
   columnId: string;
 
   @IsOptional()

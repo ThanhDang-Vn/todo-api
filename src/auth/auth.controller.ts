@@ -13,6 +13,7 @@ import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateUserDto } from 'src/user/dto/createUser.dto';
 import type { Response } from 'express';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -49,6 +50,12 @@ export class AuthController {
   @Get('google/login')
   googleLogin() {
     console.log('completed');
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
   }
 
   @UseGuards(AuthGuard('google'))

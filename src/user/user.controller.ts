@@ -9,7 +9,6 @@ import {
   Query,
   Request,
   UseGuards,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/createUser.dto';
@@ -32,7 +31,7 @@ export class UserController {
   }
 
   @Get(':id')
-  findOneUser(@Param('id', ParseIntPipe) id) {
+  findOneUser(@Param('id') id: string) {
     return this.userService.findOneUser(id);
   }
 

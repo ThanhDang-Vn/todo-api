@@ -12,6 +12,8 @@ import { RefreshJwtAuth } from './strategy/refresh.strategy';
 import googleOauthConfig from './config/google-oauth.config';
 import { GoogleAuth } from './strategy/google.strategy';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaModule } from 'src/prisma/prisma.module';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
     ConfigModule.forFeature(jwtConfig),
     ConfigModule.forFeature(refreshJwtConfig),
     ConfigModule.forFeature(googleOauthConfig),
+    PrismaModule, 
+    MailModule
   ],
   controllers: [AuthController],
   providers: [
@@ -29,6 +33,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
     RefreshJwtAuth,
     GoogleAuth,
     PrismaService,
+
   ],
 })
 export class AuthModule {}
