@@ -75,7 +75,7 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   @Get('google/callback')
   async callBack(@Request() req, @Res() res) {
-    const id = req.user.userId;
+    const id = req.user.id;
     const name = req.user.firstName + req.user.lastName;
     const email = req.user.email;
     const response = await this.authService.login({ id, name, email });

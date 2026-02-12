@@ -47,6 +47,7 @@ export class AuthService {
   async validateGoogleUser(googleUser: CreateUserDto) {
     const user = await this.userService.findUserByEmail(googleUser.email);
 
+    console.log(user);
     if (user) {
       return user;
     }
