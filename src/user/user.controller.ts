@@ -35,6 +35,11 @@ export class UserController {
     return this.userService.findOneUser(id);
   }
 
+  @Post()
+  findUserByEmail(@Body() data) {
+    return this.userService.findUserByEmail(data.email);
+  }
+
   @Get()
   findUserBasePagination(@Query() pagination: Pagination) {
     return this.userService.findUserBasePagination(pagination);
