@@ -13,6 +13,7 @@ import googleOauthConfig from './config/google-oauth.config';
 import { GoogleAuth } from './strategy/google.strategy';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { MailModule } from 'src/mail/mail.module';
+import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { MailModule } from 'src/mail/mail.module';
     ConfigModule.forFeature(refreshJwtConfig),
     ConfigModule.forFeature(googleOauthConfig),
     PrismaModule, 
-    MailModule
+    MailModule, 
+    CloudinaryModule
   ],
   controllers: [AuthController],
   providers: [

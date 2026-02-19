@@ -1,14 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/createUser.dto';
 import { updateUserDto } from './dto/updateUser.dto';
 import { Pagination } from './dto/pagination.dto';
 import { DEFAULT_PAGE_SIZE } from 'src/utils/constants';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as argon2 from 'argon2';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cloudinary: CloudinaryService,
+  ) {}
 
   async createUser(dto: CreateUserDto) {
     const { password, ...userDto } = dto;
@@ -77,5 +81,22 @@ export class UserService {
   async deleteUser(id: string) {
     await this.prisma.user.delete({ where: { id: id } });
     return 'Delete successfully';
+  }
+
+  async updateAvatar(id: string, file: Express.Multer.File) {
+    if (!file) throw new BadRequestException('Image is required');
+
+    const result = await this.cloudinary.uploadFile(file);
+
+    const updatedUser = await this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        avatarUrl: result.secure_url,
+      },
+    });
+
+    return updatedUser;
   }
 }
