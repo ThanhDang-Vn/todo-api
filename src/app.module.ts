@@ -11,6 +11,7 @@ import { CardModule } from './card/card.module';
 import { ColumnModule } from './column/column.module';
 
 import { ReminderModule } from './reminder/reminder.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 
 @Module({
@@ -24,7 +25,7 @@ import { ReminderModule } from './reminder/reminder.module';
     CardModule,
     ColumnModule,
     ReminderModule,
-  
+    CloudinaryModule
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
