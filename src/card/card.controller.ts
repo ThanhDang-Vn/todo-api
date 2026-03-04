@@ -4,7 +4,6 @@ import {
   Delete,
   Get,
   Param,
-  ParseIntPipe,
   Post,
   Put,
   Request,
@@ -43,7 +42,7 @@ export class CardController {
   update(
     @Request() req,
     @Body() dto: UpdateCardDto,
-    @Param('id', ParseIntPipe) id,
+    @Param('id') id,
   ) {
     return this.cardService.update(id, dto);
   }
