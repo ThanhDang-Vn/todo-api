@@ -25,6 +25,18 @@ export class CardController {
     return this.cardService.getCompleteCards();
   }
 
+  @Get('today')
+  @UseGuards(AuthGuard('jwt'))
+  getAllTodayCard() {
+    return this.cardService.getTodayCards();
+  }
+
+  @Get('upcomming')
+  @UseGuards(AuthGuard('jwt'))
+  getAllUpcommingCards() {
+    return this.cardService.getUpcommingCards();
+  }
+
   @Post()
   @UseGuards(AuthGuard('jwt'))
   create(@Request() req, @Body() dto: CreateCardDto) {
