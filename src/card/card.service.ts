@@ -121,6 +121,43 @@ export class CardService {
     return grouped;
   }
 
+  async getTodayCards() {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+    const cardsOfToday = await this.prisma.card.findMany({
+      where: {
+        dueTo: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+      },
+    });
+
+    const cardsDueTo = await this.prisma.card.findMany({
+      where: {
+        dueTo: {
+          lt: startOfDay,
+        },
+      },
+    });
+
+    return [
+      {
+        id: 1,
+        title: 'Overdue',
+        cards: cardsDueTo,
+      },
+      {
+        id: 2,
+        title: 'Today',
+        cards: cardsOfToday,
+      },
+    ];
+  }
+
   async updateReminder(remind: string, cardId: string) {
     const card = await this.prisma.card.findUnique({
       where: {
