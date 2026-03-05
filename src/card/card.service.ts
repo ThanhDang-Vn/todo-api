@@ -1,11 +1,58 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCardDto } from './dto/create-card.dto';
 import { UpdateCardDto } from './dto/update-card.dto';
+import { Column } from '@prisma/client';
 
 @Injectable()
 export class CardService {
   constructor(private prisma: PrismaService) {}
+
+  private formatDateStr(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private formatColumnTitle(
+    date: Date,
+    isToday: boolean,
+    isTomorrow: boolean,
+  ): string {
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    const days = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+    ];
+
+    const dayOfMonth = date.getDate();
+    const monthStr = months[date.getMonth()];
+
+    if (isToday) return `${dayOfMonth} ${monthStr} • Today`;
+    if (isTomorrow) return `${dayOfMonth} ${monthStr} • Tomorrow`;
+
+    return `${dayOfMonth} ${monthStr} • ${days[date.getDay()]}`;
+  }
 
   async create(dto: CreateCardDto) {
     const column = await this.prisma.column.findUnique({
@@ -156,6 +203,72 @@ export class CardService {
         cards: cardsOfToday,
       },
     ];
+  }
+
+  async getUpcommingCards() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const currentDayOfWeek = today.getDay();
+    const daysDiff = (7 - currentDayOfWeek) % 7;
+
+    const endOfWeek = new Date(today);
+    endOfWeek.setDate(today.getDate() + daysDiff);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    const cards = await this.prisma.card.findMany({
+      where: {
+        dueTo: {
+          gte: today,
+          lte: endOfWeek,
+        },
+      },
+      orderBy: {
+        dueTo: 'asc',
+      },
+    });
+
+    const columns: Array<{
+      id: string;
+      title: string;
+      _matchDate: string;
+      cards: any[];
+    }> = [];
+    const loopDate = new Date(today);
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    while (loopDate <= endOfWeek) {
+      const dateString = this.formatDateStr(loopDate);
+
+      const isToday = loopDate.getTime() === today.getTime();
+      const isTomorrow = loopDate.getTime() === tomorrow.getTime();
+
+      columns.push({
+        id: `virtual-${dateString}`,
+        title: this.formatColumnTitle(loopDate, isToday, isTomorrow),
+        _matchDate: dateString,
+        cards: [],
+      });
+
+      loopDate.setDate(loopDate.getDate() + 1);
+    }
+
+    for (const card of cards) {
+      if (!card.dueTo) continue;
+
+      const cardDateStr = this.formatDateStr(card.dueTo);
+      const targetColumn = columns.find(
+        (col) => col._matchDate === cardDateStr,
+      );
+
+      if (targetColumn) {
+        targetColumn.cards.push(card);
+      }
+    }
+
+    return columns.map(({ _matchDate, ...cleanColumn }) => cleanColumn);
   }
 
   async updateReminder(remind: string, cardId: string) {
