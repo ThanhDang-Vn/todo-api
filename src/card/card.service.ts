@@ -54,7 +54,7 @@ export class CardService {
     return `${dayOfMonth} ${monthStr} • ${days[date.getDay()]}`;
   }
 
-  async create(dto: CreateCardDto) {
+  async create(dto: CreateCardDto, userId: string) {
     const column = await this.prisma.column.findUnique({
       where: { id: dto.columnId },
     });
@@ -86,6 +86,7 @@ export class CardService {
         dueTo: dto.dateDue || new Date(),
         columnId: dto.columnId,
         order: order,
+        userId: userId,
         reminders: {
           create:
             dto.reminders?.map((reminder) => ({
@@ -120,9 +121,10 @@ export class CardService {
     });
   }
 
-  async getCompleteCards() {
+  async getCompleteCards(userId: string) {
     const cards = await this.prisma.card.findMany({
       where: {
+        userId: userId,
         completeAt: {
           not: null,
         },
@@ -168,7 +170,7 @@ export class CardService {
     return grouped;
   }
 
-  async getTodayCards() {
+  async getTodayCards(userId: string) {
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
@@ -176,15 +178,27 @@ export class CardService {
     endOfDay.setHours(23, 59, 59, 999);
     const cardsOfToday = await this.prisma.card.findMany({
       where: {
+        userId: userId,
         dueTo: {
           gte: startOfDay,
           lte: endOfDay,
+        },
+        completeAt: null,
+      },
+
+      orderBy: { order: 'asc' },
+      include: {
+        reminders: {
+          orderBy: {
+            remindAt: 'asc',
+          },
         },
       },
     });
 
     const cardsDueTo = await this.prisma.card.findMany({
       where: {
+        userId: userId,
         dueTo: {
           lt: startOfDay,
         },
@@ -195,17 +209,17 @@ export class CardService {
       {
         id: 1,
         title: 'Overdue',
-        cards: cardsDueTo,
+        cards: cardsDueTo ?? [],
       },
       {
         id: 2,
         title: 'Today',
-        cards: cardsOfToday,
+        cards: cardsOfToday ?? [],
       },
     ];
   }
 
-  async getUpcommingCards() {
+  async getUpcommingCards(userId: string) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -218,13 +232,20 @@ export class CardService {
 
     const cards = await this.prisma.card.findMany({
       where: {
+        userId: userId,
+        completeAt: null,
         dueTo: {
           gte: today,
           lte: endOfWeek,
         },
       },
-      orderBy: {
-        dueTo: 'asc',
+      orderBy: { order: 'asc' },
+      include: {
+        reminders: {
+          orderBy: {
+            remindAt: 'asc',
+          },
+        },
       },
     });
 
@@ -269,6 +290,32 @@ export class CardService {
     }
 
     return columns.map(({ _matchDate, ...cleanColumn }) => cleanColumn);
+  }
+
+  async getInboxCards(userId: string) {
+    return await this.prisma.column.findMany({
+      where: {
+        userId: userId,
+      },
+      orderBy: {
+        order: 'asc',
+      },
+      include: {
+        cards: {
+          where: {
+            completeAt: null,
+          },
+          orderBy: { order: 'asc' },
+          include: {
+            reminders: {
+              orderBy: {
+                remindAt: 'asc',
+              },
+            },
+          },
+        },
+      },
+    });
   }
 
   async updateReminder(remind: string, cardId: string) {

@@ -17,11 +17,13 @@ model Card {
   createdAt   DateTime  @default(now()) @db.Timestamp(6) @map("created_at")
   updatedAt   DateTime  @updatedAt @map("updated_at")
   completeAt  DateTime? @db.Timestamp(6) @map("complete_at")
+  userId    String?  @db.Uuid
   
   reminders   Reminder[]
   
   columnId    String?   @db.Uuid
   column      Column?   @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("cards")
 }
@@ -52,6 +54,7 @@ model User {
   role               Role     @default(USER)
   
   columns            Column[]
+  cards              Card[]
 
   @@map("users")
 }
