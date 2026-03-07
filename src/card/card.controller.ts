@@ -25,7 +25,7 @@ export class CardController {
     return this.cardService.getCompleteCards(req.user.id);
   }
 
-  @Get('today')
+  @Get('inbox')
   @UseGuards(AuthGuard('jwt'))
   getAllInboxCard(@Request() req) {
     return this.cardService.getInboxCards(req.user.id);

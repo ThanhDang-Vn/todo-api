@@ -183,11 +183,22 @@ export class CardService {
           gte: startOfDay,
           lte: endOfDay,
         },
+        completeAt: null,
+      },
+
+      orderBy: { order: 'asc' },
+      include: {
+        reminders: {
+          orderBy: {
+            remindAt: 'asc',
+          },
+        },
       },
     });
 
     const cardsDueTo = await this.prisma.card.findMany({
       where: {
+        userId: userId,
         dueTo: {
           lt: startOfDay,
         },
@@ -198,12 +209,12 @@ export class CardService {
       {
         id: 1,
         title: 'Overdue',
-        cards: cardsDueTo,
+        cards: cardsDueTo ?? [],
       },
       {
         id: 2,
         title: 'Today',
-        cards: cardsOfToday,
+        cards: cardsOfToday ?? [],
       },
     ];
   }
@@ -222,13 +233,19 @@ export class CardService {
     const cards = await this.prisma.card.findMany({
       where: {
         userId: userId,
+        completeAt: null,
         dueTo: {
           gte: today,
           lte: endOfWeek,
         },
       },
-      orderBy: {
-        dueTo: 'asc',
+      orderBy: { order: 'asc' },
+      include: {
+        reminders: {
+          orderBy: {
+            remindAt: 'asc',
+          },
+        },
       },
     });
 
