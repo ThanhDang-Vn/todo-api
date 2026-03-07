@@ -21,26 +21,32 @@ export class CardController {
 
   @Get('complete')
   @UseGuards(AuthGuard('jwt'))
-  getAllCompletedCard() {
-    return this.cardService.getCompleteCards();
+  getAllCompletedCard(@Request() req) {
+    return this.cardService.getCompleteCards(req.user.id);
   }
 
   @Get('today')
   @UseGuards(AuthGuard('jwt'))
-  getAllTodayCard() {
-    return this.cardService.getTodayCards();
+  getAllInboxCard(@Request() req) {
+    return this.cardService.getInboxCards(req.user.id);
+  }
+
+  @Get('today')
+  @UseGuards(AuthGuard('jwt'))
+  getAllTodayCard(@Request() req) {
+    return this.cardService.getTodayCards(req.user.id);
   }
 
   @Get('upcomming')
   @UseGuards(AuthGuard('jwt'))
-  getAllUpcommingCards() {
-    return this.cardService.getUpcommingCards();
+  getAllUpcommingCards(@Request() req) {
+    return this.cardService.getUpcommingCards(req.user.id);
   }
 
   @Post()
   @UseGuards(AuthGuard('jwt'))
   create(@Request() req, @Body() dto: CreateCardDto) {
-    return this.cardService.create(dto);
+    return this.cardService.create(dto, req.user.id);
   }
 
   @Put(':id/complete')
@@ -51,11 +57,7 @@ export class CardController {
 
   @Put(':id')
   @UseGuards(AuthGuard('jwt'))
-  update(
-    @Request() req,
-    @Body() dto: UpdateCardDto,
-    @Param('id') id,
-  ) {
+  update(@Request() req, @Body() dto: UpdateCardDto, @Param('id') id) {
     return this.cardService.update(id, dto);
   }
 
