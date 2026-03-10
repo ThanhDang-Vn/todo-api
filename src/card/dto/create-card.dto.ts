@@ -1,5 +1,10 @@
 import { Reminder } from '@prisma/client';
-import { IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsDateString,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateCardDto {
   @IsNotEmpty()
@@ -18,8 +23,8 @@ export class CreateCardDto {
   priority?: 'low' | 'medium' | 'high';
 
   @IsOptional()
-  @IsDate()
-  dateDue?: Date;
+  @IsDateString()
+  dateDue?: string;
 
   @IsNotEmpty()
   @IsString()

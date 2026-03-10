@@ -5,12 +5,14 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { ColumnService } from './column.service';
 import { createColumnDto } from './dto/create-column.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { updateColumnDto } from './dto/update-column.dto';
 
 @Controller('columns')
 @UseGuards(AuthGuard('jwt'))
@@ -30,6 +32,11 @@ export class ColumnController {
   @Post(':id/duplicate')
   duplicate(@Param('id') id: string) {
     return this.columnService.duplicate(id);
+  }
+
+  @Put(':id')
+  update(@Body() dto: updateColumnDto, @Param('id') id: string) {
+    return this.columnService.update(dto, id);
   }
 
   @Delete(':id')

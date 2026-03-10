@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { createColumnDto } from './dto/create-column.dto';
+import { updateColumnDto } from './dto/update-column.dto';
 
 @Injectable()
 export class ColumnService {
@@ -13,21 +14,6 @@ export class ColumnService {
       },
       orderBy: {
         order: 'asc',
-      },
-      include: {
-        cards: {
-          where: {
-            completeAt: null,
-          },
-          orderBy: { order: 'asc' },
-          include: {
-            reminders: {
-              orderBy: {
-                remindAt: 'asc',
-              },
-            },
-          },
-        },
       },
     });
   }
@@ -61,6 +47,28 @@ export class ColumnService {
         title: dto.title,
         userId: userId,
         order: order,
+      },
+    });
+  }
+
+  async update(dto: updateColumnDto, columnId: string) {
+    const column = await this.prisma.column.findFirst({
+      where: {
+        id: columnId,
+      },
+    });
+
+    if (!column) {
+      throw new NotFoundException('Column not found');
+    }
+
+    return await this.prisma.column.update({
+      where: {
+        id: columnId,
+      },
+      data: {
+        title: dto.title,
+        order: dto.order,
       },
     });
   }

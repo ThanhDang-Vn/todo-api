@@ -55,6 +55,7 @@ export class CardService {
   }
 
   async create(dto: CreateCardDto, userId: string) {
+    console.log(dto);
     const column = await this.prisma.column.findUnique({
       where: { id: dto.columnId },
     });

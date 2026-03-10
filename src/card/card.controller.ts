@@ -37,7 +37,7 @@ export class CardController {
     return this.cardService.getTodayCards(req.user.id);
   }
 
-  @Get('upcomming')
+  @Get('upcoming')
   @UseGuards(AuthGuard('jwt'))
   getAllUpcommingCards(@Request() req) {
     return this.cardService.getUpcommingCards(req.user.id);
