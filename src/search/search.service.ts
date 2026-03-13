@@ -18,6 +18,8 @@ export class SearchService {
           title: true,
           id: true,
           columnId: true,
+          priority: true,
+          description: true,
         },
       }),
       this.prisma.column.findMany({
