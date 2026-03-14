@@ -208,12 +208,12 @@ export class CardService {
 
     return [
       {
-        id: 1,
+        id: '1',
         title: 'Overdue',
         cards: cardsDueTo ?? [],
       },
       {
-        id: 2,
+        id: '2',
         title: 'Today',
         cards: cardsOfToday ?? [],
       },
@@ -268,7 +268,7 @@ export class CardService {
       const isTomorrow = loopDate.getTime() === tomorrow.getTime();
 
       columns.push({
-        id: `virtual-${dateString}`,
+        id: `${dateString}`,
         title: this.formatColumnTitle(loopDate, isToday, isTomorrow),
         _matchDate: dateString,
         cards: [],
