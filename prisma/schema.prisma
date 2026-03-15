@@ -18,6 +18,8 @@ model Card {
   updatedAt   DateTime  @updatedAt @map("updated_at")
   completeAt  DateTime? @db.Timestamp(6) @map("complete_at")
   userId    String?  @db.Uuid
+
+  isNotified  Boolean  @default(false)
   
   reminders   Reminder[]
   

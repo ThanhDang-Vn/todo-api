@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateCardDto } from './dto/create-card.dto';
-import { UpdateCardDto } from './dto/update-card.dto';
-import { Column } from '@prisma/client';
+import { CreateCardDto } from '../dto/create-card.dto';
+import { UpdateCardDto } from '../dto/update-card.dto';
 
 @Injectable()
 export class CardService {
@@ -55,7 +54,6 @@ export class CardService {
   }
 
   async create(dto: CreateCardDto, userId: string) {
-    console.log(dto);
     const column = await this.prisma.column.findUnique({
       where: { id: dto.columnId },
     });

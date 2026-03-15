@@ -9,7 +9,7 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { CardService } from './card.service';
+import { CardService } from './services/card.service';
 import { CreateCardDto } from './dto/create-card.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateCardDto } from './dto/update-card.dto';

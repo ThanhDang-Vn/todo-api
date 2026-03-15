@@ -7,7 +7,6 @@ export class MailService {
   private readonly logger = new Logger(MailService.name);
   constructor() {
 
-	// using transporter for save configuration 
     this.transporter = nodemailer.createTransport({
       host: process.env.MAIL_HOST,
       port: 587,
