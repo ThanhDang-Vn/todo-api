@@ -16,6 +16,7 @@ import { ReminderModule } from './reminder/reminder.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { SearchModule } from './search/search.module';
 import { NotificationsModule } from './notification/notification.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { NotificationsModule } from './notification/notification.module';
     }),
     ScheduleModule.forRoot(),
     EventEmitterModule.forRoot(),
+    RedisModule,
     UserModule,
     AuthModule,
     CardModule,
