@@ -7,11 +7,8 @@ import { updateColumnDto } from './dto/update-column.dto';
 export class ColumnService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllColumn(userId: string) {
+  async getAllColumn() {
     return await this.prisma.column.findMany({
-      where: {
-        userId: userId,
-      },
       orderBy: {
         order: 'asc',
       },

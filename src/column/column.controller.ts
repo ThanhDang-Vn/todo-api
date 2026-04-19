@@ -15,14 +15,35 @@ import { AuthGuard } from '@nestjs/passport';
 import { updateColumnDto } from './dto/update-column.dto';
 
 @Controller('columns')
-@UseGuards(AuthGuard('jwt'))
 export class ColumnController {
   constructor(private readonly columnService: ColumnService) {}
 
   @Get()
-  getAllColumns(@Request() req) {
-    return this.columnService.getAllColumn(req.user.id);
-  }
+  getAllVocabulary(@Request() req) {
+  return [
+    {
+      id: 1,
+      word: 'Apple',
+      pronunciation: "/'æpəl/",
+      meaning: 'Quả táo',
+      isFavorite: true,
+    },
+    {
+      id: 2,
+      word: 'Banana',
+      pronunciation: "/bə'nɑ:nə/",
+      meaning: 'Quả chuối',
+      isFavorite: false,
+    },
+    {
+      id: 3,
+      word: 'Coffee',
+      pronunciation: "/'kɒfi/",
+      meaning: 'Cà phê',
+      isFavorite: true,
+    },
+  ];
+}
 
   @Post()
   create(@Body() dto: createColumnDto, @Request() req) {
