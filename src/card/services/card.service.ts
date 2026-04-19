@@ -3,10 +3,30 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCardDto } from '../dto/create-card.dto';
 import { UpdateCardDto } from '../dto/update-card.dto';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class CardService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private redis: RedisService,
+  ) {}
+
+  private readonly REDIS_TTL = 300;
+
+  private cacheKey = {
+    today: (uid: string) => `cards:today:${uid}`,
+    upcoming: (uid: string) => `cards:upcoming:${uid}`,
+    inbox: (uid: string) => `cards:inbox:${uid}`,
+  };
+
+  private async invalidateUserCaches(userId: string): Promise<void> {
+    await this.redis.del(
+      this.cacheKey.today(userId),
+      this.cacheKey.upcoming(userId),
+      this.cacheKey.inbox(userId),
+    );
+  }
 
   private formatDateStr(date: Date): string {
     const year = date.getFullYear();
@@ -77,7 +97,7 @@ export class CardService {
       order = lastCard ? lastCard.order + 10000 : 10000;
     }
 
-    return await this.prisma.card.create({
+    const newCard = await this.prisma.card.create({
       data: {
         title: dto.title,
         description: dto.description || '',
@@ -97,6 +117,9 @@ export class CardService {
         reminders: true,
       },
     });
+
+    await this.invalidateUserCaches(userId);
+    return newCard;
   }
 
   async complete(cardId: string) {
@@ -110,7 +133,7 @@ export class CardService {
       throw new Error('Card is not exist');
     }
 
-    return await this.prisma.card.update({
+    const updated = await this.prisma.card.update({
       where: {
         id: cardId,
       },
@@ -118,6 +141,9 @@ export class CardService {
         completeAt: new Date(),
       },
     });
+
+    if (card.userId) await this.invalidateUserCaches(card.userId);
+    return updated;
   }
 
   async getCompleteCards(userId: string) {
@@ -170,6 +196,10 @@ export class CardService {
   }
 
   async getTodayCards(userId: string) {
+    const key = this.cacheKey.today(userId);
+    const cached = await this.redis.get(key);
+    if (cached) return cached;
+
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
 
@@ -204,7 +234,7 @@ export class CardService {
       },
     });
 
-    return [
+    const res = [
       {
         id: '1',
         title: 'Overdue',
@@ -216,9 +246,16 @@ export class CardService {
         cards: cardsOfToday ?? [],
       },
     ];
+
+    await this.redis.set(key, res, this.REDIS_TTL);
+    return res;
   }
 
   async getUpcommingCards(userId: string) {
+    const key = this.cacheKey.upcoming(userId);
+    const cached = await this.redis.get(key);
+
+    if (cached) return cached;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -288,11 +325,18 @@ export class CardService {
       }
     }
 
-    return columns.map(({ _matchDate, ...cleanColumn }) => cleanColumn);
+    const res = columns.map(({ _matchDate, ...cleanColumn }) => cleanColumn);
+
+    await this.redis.set(key, res, this.REDIS_TTL);
+
+    return res;
   }
 
   async getInboxCards(userId: string) {
-    return await this.prisma.column.findMany({
+    const key = this.cacheKey.inbox(userId);
+    const cached = await this.redis.get(key);
+    if (cached) return cached;
+    const res = await this.prisma.column.findMany({
       where: {
         userId: userId,
       },
@@ -315,6 +359,10 @@ export class CardService {
         },
       },
     });
+
+    await this.redis.set(key, res, this.REDIS_TTL);
+
+    return res;
   }
 
   async updateReminder(remind: string, cardId: string) {
@@ -331,7 +379,7 @@ export class CardService {
       throw new Error('Card does not exist');
     }
 
-    return await this.prisma.card.update({
+    const updated = await this.prisma.card.update({
       where: {
         id: cardId,
       },
@@ -346,14 +394,25 @@ export class CardService {
         reminders: true,
       },
     });
+
+    if (card.userId) await this.invalidateUserCaches(card.userId);
+    return updated;
   }
 
   async deleteReminder(reminderId: string) {
-    return await this.prisma.reminder.delete({
-      where: {
-        id: reminderId,
-      },
+    const reminder = await this.prisma.reminder.findUnique({
+      where: { id: reminderId },
+      include: { card: { select: { userId: true } } },
     });
+
+    const deleted = await this.prisma.reminder.delete({
+      where: { id: reminderId },
+    });
+
+    if (reminder?.card?.userId) {
+      await this.invalidateUserCaches(reminder.card.userId);
+    }
+    return deleted;
   }
 
   async update(cardId: string, dto: UpdateCardDto) {
@@ -384,7 +443,7 @@ export class CardService {
       }
     }
 
-    return await this.prisma.card.update({
+    const updated = await this.prisma.card.update({
       where: {
         id: cardId,
       },
@@ -397,6 +456,9 @@ export class CardService {
         column: true,
       },
     });
+
+    if (card.userId) await this.invalidateUserCaches(card.userId);
+    return updated;
   }
 
   async delete(cardId: string) {
@@ -410,10 +472,13 @@ export class CardService {
       throw new NotFoundException('Card not found or access denied');
     }
 
-    return await this.prisma.card.delete({
+    const deleted = await this.prisma.card.delete({
       where: {
         id: cardId,
       },
     });
+
+    if (card.userId) await this.invalidateUserCaches(card.userId);
+    return deleted;
   }
 }
